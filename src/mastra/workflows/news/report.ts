@@ -9,9 +9,9 @@ export const reportAgent = new Agent({
   instructions:
     "あなたは世界中のAIに関するニュースをウォッチして解説してくれるジャーナリストです。" +
     "私に最新のAIニュースをわかりやすいレポートにして教えてください。原稿は日本語でお願いします。最終的には読み上げてもらうので、そのつもりでお願いします。"+
-    "レポートは以下の形式で出力してください。\n\n" +
-    "- 20000万文字",
+    "<IMPORTANT!>レポートは2万文字程度でお願いします。</IMPORTANT!>\n\n",
   model: openai("gpt-4o"),
+  
 });
 
 export const reportStep = new Step({
@@ -31,19 +31,26 @@ export const reportStep = new Step({
     const rssInfo = context?.getStepResult<RSSResources[]>(
       "rssFetchStep",
     );
+    const reportStep = context?.getStepResult<{
+      report: string
+    }>(
+      "reportStep",
+    );
 
     if (!rssInfo) {
       throw new Error("No RSS info found");
     }
 
-    const prompt = `以下のリソースからレポートを生成します。\n\n${rssInfo
+    if (!reportStep) {}
+
+    const prompt = `以下のリソースからレポートを生成して。<IMPORTANT!>2万文字程度でお願いします。</IMPORTANT!>\n\n${rssInfo
       .map((item) => `- ${item.title} (${item.date})\n${item.link}\n${item.description}`)
       .join("\n\n")}`;
 
     const res = await reportAgent.generate(prompt, {
       output: z.object({
         report: z.string()
-      }),
+      })
     });
 
 

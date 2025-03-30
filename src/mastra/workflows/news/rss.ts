@@ -31,7 +31,6 @@ export const rssFetchStep = new Step({
       "https://raw.githubusercontent.com/Olshansk/rss-feeds/refs/heads/main/feeds/feed_anthropic.xml",
       "https://blog.google/rss/",
       "https://blog.samaltman.com/posts.atom",
-      "https://karpathy.github.io/feed.xml",
       "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
       "https://openai.com/news/rss.xml",
     ]

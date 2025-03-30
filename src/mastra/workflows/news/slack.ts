@@ -1,42 +1,52 @@
-// import { createTool } from "@mastra/core/tools";
-// import { date, z } from "zod";
+import fs from 'fs';
+import path from 'path';
+import { WebClient } from '@slack/web-api';
+import { Step } from '@mastra/core';
+import { z } from 'zod';
 
-// export const slackTool = createTool({
-//   id: "get-rss",
-//   description: "AIに関するブログなどのRSSから最新のニュースを取得します。",
-//   inputSchema: z.object({
-//     theme: z.string().optional().describe("テーマ"),
-//   }),
-//   outputSchema: z.object({
-//     resources: z.array(
-//       z.object({
-//         title: z.string(),
-//         link: z.string().url(),
-//         date: z.string(),
-//         description: z.string(),
-//       }),
-//     )
-//   }),
-//   execute: async ({ context }) => {
-//     return await getRSS(context.theme);
-//   },
-// });
+// SlackのBotトークン
+const SLACK_BOT_TOKEN = process.env.SLACK_BOT_TOKEN
+// アップロード先のチャンネルID (例: C12345678)
+const SLACK_CHANNEL_ID = 'CELMD3VU7';
+
+const client = new WebClient(SLACK_BOT_TOKEN);
 
 
+export const slackUploadStep = new Step({
+  id: "slackUploadStep",
+  inputSchema: z.object({
+    filepath: z.string(),
+  }),
+  execute: async ({ context }) => {
+    const filePath = context?.getStepResult<{
+      filepath: string;
+    }>(
+      "speachStep",
+    );
+    if (!filePath) {
+      throw new Error("No file path found");
+    }
 
-// const getRSS = async (theme = 'AI, LLM, AI Agent' ) => {
+    await uploadAudioToSlack(filePath.filepath);
+  },
+});
 
-//   const resources: Array<RSSResource> = []
-  
-//   const response = await fetch(weatherUrl);
-//   const data: RSSFeed = await response.json();
 
-//   return {
-//     resources: data.items.map((item) => ({
-//       title: item.title,
-//       link: item.link,
-//       date: item.date,
-//       description: item.description,
-//     })),
-//   };
-// };
+async function uploadAudioToSlack(filePath: string) {
+  try {
+    // ストリームを作成
+    const fileStream = fs.createReadStream(filePath);
+
+    // Slackにファイルをアップロード
+    const result = await client.files.uploadV2({
+      channels: SLACK_CHANNEL_ID,
+      file: fileStream,
+      filename: path.basename(filePath),  // Slack上で表示されるファイル名
+      initial_comment: '音声ファイルをアップロードしました！'
+    });
+
+    console.log('File uploaded successfully:', result);
+  } catch (err) {
+    console.error('Failed to upload file to Slack:', err);
+  }
+}

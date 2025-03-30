@@ -19,6 +19,7 @@
     "@mastra/pg": "^0.2.6",
     "@mastra/rag": "^0.1.14",
     "@mastra/voice-openai": "^0.1.10",
+    "@slack/web-api": "^7.9.1",
     "ai": "^4.2.8",
     "mastra": "^0.2.8",
     "rss-parser": "^3.13.0",
