@@ -141,9 +141,12 @@ const planActivities = new Step({
       process.stdout.write(chunk);
     }
 
-    return {
-      activities: response.text,
-    };
+    if ('text' in response) {
+      return {
+        activities: response.text,
+      };
+
+    }
   },
 });
 

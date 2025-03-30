@@ -1,0 +1,13 @@
+version: '3'
+services:
+  db:
+    build: .
+    container_name: mypg
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: test_db
